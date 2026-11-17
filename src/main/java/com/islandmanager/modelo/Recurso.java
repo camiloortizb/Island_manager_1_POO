@@ -1,3 +1,5 @@
+package com.islandmanager.modelo;
+
 /**
  * Representa un recurso material o insumo dentro de la isla.
  * Aplica el principio de encapsulamiento mediante atributos privados y métodos de acceso.
@@ -7,9 +9,18 @@
 public class Recurso {
 
     // --- Atributos privados ---
+    private int id;    // Clave primaria en la base de datos (0 = todavía no se guardó)
     private String nombre;
     private int cantidad;
     private int valor; // Valor unitario para el intercambio o trueque
+
+    /**
+     * Constructor usado al leer un recurso desde la base de datos.
+     */
+    public Recurso(int id, String nombre, int cantidad, int valor) {
+        this(nombre, cantidad, valor);
+        this.id = id;
+    }
 
     /**
      * Constructor para inicializar un recurso con sus valores iniciales.
@@ -53,6 +64,10 @@ public class Recurso {
     }
 
     // --- Métodos Getters ---
+
+    public int getId() {
+        return this.id;
+    }
 
     public String getNombre() {
         return this.nombre;

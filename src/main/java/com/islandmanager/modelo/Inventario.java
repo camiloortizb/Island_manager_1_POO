@@ -1,4 +1,8 @@
+package com.islandmanager.modelo;
+
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Administra la colección de recursos que posee el jugador o la base de la isla.
@@ -76,8 +80,24 @@ public class Inventario {
         System.out.println("+------------------------------------------------------+");
     }
 
+    /**
+     * Calcula el valor total del inventario (cantidad x valor de cada recurso).
+     */
+    public int calcularValorTotal() {
+        int total = 0;
+        for (Recurso r : this.listaRecursos) {
+            total += r.getCantidad() * r.getValor();
+        }
+        return total;
+    }
+
     // --- Getter de la lista ---
-    public ArrayList<Recurso> getListaRecursos() {
-        return this.listaRecursos;
+    /**
+     * Devuelve una vista de solo lectura: desde afuera se puede recorrer la lista
+     * pero no modificarla directamente (se protege el encapsulamiento).
+     * Si alguien intenta hacer add() lanza UnsupportedOperationException.
+     */
+    public List<Recurso> getListaRecursos() {
+        return Collections.unmodifiableList(this.listaRecursos);
     }
 }

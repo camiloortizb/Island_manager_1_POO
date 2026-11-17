@@ -1,16 +1,30 @@
+package com.islandmanager;
+
+import com.islandmanager.dao.JugadorDAO;
+import com.islandmanager.dao.JugadorDAOImpl;
+import com.islandmanager.excepciones.DAOException;
+import com.islandmanager.excepciones.RecursoInsuficienteException;
+import com.islandmanager.modelo.Jugador;
+import com.islandmanager.modelo.Ubicacion;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 /**
  * Clase principal que inicia y coordina el simulador Island Manager.
  * Maneja la interacción por consola con el usuario mediante Scanner,
  * instanciación de objetos y flujo general de decisiones.
- * 
- * @version 1.0
+ * Desde la versión 2.0 permite guardar la partida en MySQL a través del DAO.
+ *
+ * @version 2.0
  */
 public class Main {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        JugadorDAO jugadorDAO = new JugadorDAOImpl();
 
         // --- Bienvenida y Portada tipo Ventana de Consola ---
         System.out.println("************************************************************");
@@ -31,29 +45,25 @@ public class Main {
         int edad = leerEntero(scanner, 1, 120);
 
         // --- Catálogo de Ubicaciones Disponibles ---
-        Ubicacion playa = new Ubicacion("Playa Arrecife", "Agua", 20);
-        Ubicacion bosque = new Ubicacion("Bosque Nuboso", "Madera", 35);
-        Ubicacion montana = new Ubicacion("Montana Rocosa", "Piedra", 25);
+        // Colección Map: la clave (Integer) es la opción del menú y el valor es la Ubicacion.
+        // LinkedHashMap mantiene el orden de inserción, así el menú siempre sale ordenado.
+        // Los ids coinciden con los registros de la tabla "ubicacion" (sql/island_manager.sql).
+        Map<Integer, Ubicacion> ubicaciones = new LinkedHashMap<>();
+        ubicaciones.put(1, new Ubicacion(1, "Playa Arrecife", "Agua", 20));
+        ubicaciones.put(2, new Ubicacion(2, "Bosque Nuboso", "Madera", 35));
+        ubicaciones.put(3, new Ubicacion(3, "Montana Rocosa", "Piedra", 25));
 
         // --- Selección de Ubicación Inicial ---
         System.out.println("\nSeleccione donde desea establecer su campamento base:");
-        System.out.println("1. " + playa.getNombre() + " (Recurso: " + playa.getRecursoPrincipal() + ")");
-        System.out.println("2. " + bosque.getNombre() + " (Recurso: " + bosque.getRecursoPrincipal() + ")");
-        System.out.println("3. " + montana.getNombre() + " (Recurso: " + montana.getRecursoPrincipal() + ")");
-        System.out.print("Opcion (1-3): ");
-        int opcionUbicacion = leerEntero(scanner, 1, 3);
-
-        Ubicacion ubicacionInicial;
-        if (opcionUbicacion == 1) {
-            ubicacionInicial = playa;
-        } else if (opcionUbicacion == 2) {
-            ubicacionInicial = bosque;
-        } else {
-            ubicacionInicial = montana;
+        for (Map.Entry<Integer, Ubicacion> entrada : ubicaciones.entrySet()) {
+            Ubicacion u = entrada.getValue();
+            System.out.println(entrada.getKey() + ". " + u.getNombre() + " (Recurso: " + u.getRecursoPrincipal() + ")");
         }
+        System.out.print("Opcion (1-" + ubicaciones.size() + "): ");
+        int opcionUbicacion = leerEntero(scanner, 1, ubicaciones.size());
 
         // --- Instanciación del Objeto Principal: Jugador ---
-        Jugador jugador = new Jugador(nombre, edad, ubicacionInicial);
+        Jugador jugador = new Jugador(nombre, edad, ubicaciones.get(opcionUbicacion));
 
         System.out.println("\n>> ¡Campamento establecido con exito!");
         System.out.println(">> Bienvenido a la isla, " + jugador.getNombre() + ".");
@@ -63,8 +73,8 @@ public class Main {
 
         while (ejecutando) {
             mostrarMenuPrincipal();
-            System.out.print("Seleccione una accion (1-5): ");
-            int opcion = leerEntero(scanner, 1, 5);
+            System.out.print("Seleccione una accion (1-6): ");
+            int opcion = leerEntero(scanner, 1, 6);
 
             switch (opcion) {
                 case 1:
@@ -92,17 +102,24 @@ public class Main {
                     System.out.print("Seleccione oferta (1-4): ");
                     int oferta = leerEntero(scanner, 1, 4);
 
-                    if (oferta == 1) {
-                        boolean exito = jugador.negociar("Madera", 20, "Hierro", 10, 10);
-                        informarResultadoTrueque(exito, "20 de Madera por 10 de Hierro");
-                    } else if (oferta == 2) {
-                        boolean exito = jugador.negociar("Piedra", 15, "Comida", 10, 4);
-                        informarResultadoTrueque(exito, "15 de Piedra por 10 de Comida");
-                    } else if (oferta == 3) {
-                        boolean exito = jugador.negociar("Agua", 10, "Madera", 15, 3);
-                        informarResultadoTrueque(exito, "10 de Agua por 15 de Madera");
-                    } else {
-                        System.out.println(">> Operacion cancelada. Regresando al menu.");
+                    // try-catch: si no alcanzan los recursos, el método lanza una excepción propia
+                    try {
+                        if (oferta == 1) {
+                            jugador.negociar("Madera", 20, "Hierro", 10, 10);
+                            informarTruequeExitoso("20 de Madera por 10 de Hierro");
+                        } else if (oferta == 2) {
+                            jugador.negociar("Piedra", 15, "Comida", 10, 4);
+                            informarTruequeExitoso("15 de Piedra por 10 de Comida");
+                        } else if (oferta == 3) {
+                            jugador.negociar("Agua", 10, "Madera", 15, 3);
+                            informarTruequeExitoso("10 de Agua por 15 de Madera");
+                        } else {
+                            System.out.println(">> Operacion cancelada. Regresando al menu.");
+                        }
+                    } catch (RecursoInsuficienteException e) {
+                        System.out.println(">> Error en el trueque: " + e.getMessage() + ".");
+                        System.out.println(">> Te faltan " + (e.getCantidadPedida() - e.getCantidadDisponible())
+                                + " unidades de " + e.getRecurso() + ".");
                     }
                     break;
 
@@ -114,26 +131,28 @@ public class Main {
                 case 4:
                     // --- Caso 4: Cambiar de Ubicación ---
                     System.out.println("\n--- MAPA DE LA ISLA - VIAJAR ---");
-                    System.out.println("1. Viajar a " + playa.getNombre());
-                    System.out.println("2. Viajar a " + bosque.getNombre());
-                    System.out.println("3. Viajar a " + montana.getNombre());
-                    System.out.println("4. Permanecer en el lugar actual");
-                    System.out.print("Destino (1-4): ");
-                    int destino = leerEntero(scanner, 1, 4);
+                    for (Map.Entry<Integer, Ubicacion> entrada : ubicaciones.entrySet()) {
+                        System.out.println(entrada.getKey() + ". Viajar a " + entrada.getValue().getNombre());
+                    }
+                    int quedarse = ubicaciones.size() + 1;
+                    System.out.println(quedarse + ". Permanecer en el lugar actual");
+                    System.out.print("Destino (1-" + quedarse + "): ");
+                    int destino = leerEntero(scanner, 1, quedarse);
 
-                    if (destino == 1) {
-                        jugador.setUbicacion(playa);
-                    } else if (destino == 2) {
-                        jugador.setUbicacion(bosque);
-                    } else if (destino == 3) {
-                        jugador.setUbicacion(montana);
+                    if (ubicaciones.containsKey(destino)) {
+                        jugador.setUbicacion(ubicaciones.get(destino));
                     } else {
                         System.out.println(">> Permaneces en " + jugador.getUbicacion().getNombre() + ".");
                     }
                     break;
 
                 case 5:
-                    // --- Caso 5: Salir del programa ---
+                    // --- Caso 5: Guardar partida en MySQL ---
+                    guardarPartida(jugadorDAO, jugador);
+                    break;
+
+                case 6:
+                    // --- Caso 6: Salir del programa ---
                     System.out.println("\n========================================================");
                     System.out.println("Gracias por jugar a Island Manager. ¡Hasta la proxima!");
                     System.out.println("========================================================");
@@ -150,6 +169,25 @@ public class Main {
     }
 
     /**
+     * Guarda la partida: la primera vez inserta (CREATE) y las siguientes actualiza (UPDATE).
+     * Si la base no está disponible, el juego sigue funcionando y solo se informa el error.
+     */
+    private static void guardarPartida(JugadorDAO dao, Jugador jugador) {
+        try {
+            if (jugador.getId() == 0) {
+                dao.insertar(jugador);
+                System.out.println(">> Partida guardada. Tu numero de partida es #" + jugador.getId() + ".");
+            } else {
+                dao.actualizar(jugador);
+                System.out.println(">> Partida #" + jugador.getId() + " actualizada.");
+            }
+        } catch (DAOException e) {
+            System.out.println(">> No se pudo guardar la partida: " + e.getMessage());
+            System.out.println(">> Verifique que MySQL este iniciado y los datos de db.properties.");
+        }
+    }
+
+    /**
      * Muestra las opciones principales del simulador.
      */
     private static void mostrarMenuPrincipal() {
@@ -160,25 +198,24 @@ public class Main {
         System.out.println("2. Negociar / Intercambiar recursos (Trueque)");
         System.out.println("3. Ver estado del superviviente e inventario");
         System.out.println("4. Cambiar de ubicacion");
-        System.out.println("5. Salir del simulador");
+        System.out.println("5. Guardar partida (MySQL)");
+        System.out.println("6. Salir del simulador");
         System.out.println("--------------------------------------------------------");
     }
 
     /**
-     * Imprime el resultado de una operación comercial.
+     * Imprime el resultado de una operación comercial exitosa.
      */
-    private static void informarResultadoTrueque(boolean exito, String detalle) {
-        if (exito) {
-            System.out.println(">> ¡Negociacion exitosa! Intercambiaste: " + detalle + ".");
-        } else {
-            System.out.println(">> Error en el trueque: no dispones de los recursos requeridos.");
-        }
+    private static void informarTruequeExitoso(String detalle) {
+        System.out.println(">> ¡Negociacion exitosa! Intercambiaste: " + detalle + ".");
     }
 
     /**
      * Lee un número entero de la consola garantizando que sea válido y se encuentre en el rango permitido.
-     * Evita excepciones por tipos de datos incorrectos.
-     * 
+     * Maneja dos excepciones:
+     *  - NumberFormatException: el usuario escribió texto en lugar de un número.
+     *  - NoSuchElementException: se cerró la entrada (por ejemplo Ctrl+D), se sale del programa ordenadamente.
+     *
      * @param scanner Objeto Scanner para lectura.
      * @param min     Valor mínimo permitido.
      * @param max     Valor máximo permitido.
@@ -197,6 +234,9 @@ public class Main {
                 }
             } catch (NumberFormatException e) {
                 System.out.print(">> Entrada invalida. Ingrese un numero valido: ");
+            } catch (NoSuchElementException e) {
+                System.out.println("\n>> Entrada finalizada. Cerrando el simulador.");
+                System.exit(0);
             }
         }
     }

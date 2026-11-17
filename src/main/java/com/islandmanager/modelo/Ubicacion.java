@@ -1,3 +1,5 @@
+package com.islandmanager.modelo;
+
 /**
  * Representa una zona o bioma geográfico dentro de la isla.
  * Define qué tipo de recurso abunda y calcula bonificaciones según el esfuerzo aplicado.
@@ -6,6 +8,7 @@
 public class Ubicacion {
 
     // --- Atributos privados ---
+    private int id; // Coincide con el id de la tabla "ubicacion"
     private String nombre;
     private String recursoPrincipal;
     private int cantidadBase;
@@ -13,12 +16,14 @@ public class Ubicacion {
     /**
      * Constructor para inicializar una ubicación de la isla.
      * 
+     * @param id               Identificador de la zona en la base de datos.
      * @param nombre           Nombre de la zona (ej. "Bosque", "Playa", "Montana").
      * @param recursoPrincipal Tipo de recurso característico de este lugar.
      * @param cantidadBase     Cantidad base obtenida al recolectar en condiciones normales.
      
     */
-    public Ubicacion(String nombre, String recursoPrincipal, int cantidadBase) {
+    public Ubicacion(int id, String nombre, String recursoPrincipal, int cantidadBase) {
+        this.id = id;
         this.nombre = nombre;
         this.recursoPrincipal = recursoPrincipal;
         this.cantidadBase = cantidadBase;
@@ -53,6 +58,10 @@ public class Ubicacion {
     }
 
     // --- Getters ---
+
+    public int getId() {
+        return this.id;
+    }
 
     public String getNombre() {
         return this.nombre;
