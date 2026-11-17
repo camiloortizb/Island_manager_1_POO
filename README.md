@@ -258,7 +258,9 @@ También se usan **try-with-resources** (cierre automático de `Connection`, `Pr
 | Métodos | Solo `length` | `add`, `remove`, `contains`, `size`, etc. |
 
 ---
-8. Uso de Inteligencia Artificial
-<!-- Completar con nuestras propias palabras: para qué usamos la IA y qué aprendimos. -->
-- **Para qué la usamos:** ...
-- **Qué aprendimos:** ...
+## 8. Uso de Inteligencia Artificial
+
+- **Para qué la usamos:** Usamos la IA como apoyo para comprender mejor el código que ya teníamos armado de la Actividad 2. Le pedimos que nos explique clase por clase y método por método qué hace cada parte (modelo, DAO, excepciones, conexión, etc.), las mejoras respecto a la versión anterior del proyecto, y que profundice en el patrón DAO. También nos ayudó a armar el paso a paso para hacer el commit y subir la nueva versión al repositorio de forma ordenada.
+
+- **Qué aprendimos:** Aprendimos a leer y explicar con más claridad una estructura DAO con interfaces genéricas, implementaciones JDBC, transacciones y manejo de excepciones propias. También entendimos mejor cómo se separa la lógica de negocio del acceso a datos, y practicamos el flujo de Git (status, add, commit y push) sobre un repositorio ya existente. La IA nos sirvió para consolidar lo que ya habíamos investigado y programado, no para generar el código desde cero.
+- 
