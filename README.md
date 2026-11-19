@@ -131,7 +131,7 @@ Crear la base ejecutando el script (desde MySQL Workbench o la consola):
 ```bash
 mysql -u root -p < sql/island_manager.sql
 ```
-> **Ojo:** el script empieza con `DROP DATABASE IF EXISTS island_manager`. Si lo volvés a correr, se borran las partidas guardadas.
+> el script empieza con `DROP DATABASE IF EXISTS island_manager`. Si lo volvés a correr, se borran las partidas guardadas.
 5.3 Credenciales (`db.properties`)
 El archivo `src/main/resources/db.properties` trae credenciales de ejemplo (`root` / `root`) para una instalación local de prueba:
 ```properties
@@ -363,6 +363,6 @@ Rendimiento	Más rápido y usa menos memoria	Algo más costoso por el boxing
 Métodos	Solo `length`	`add`, `remove`, `contains`, `size`, etc.
 ---
 8. Uso de Inteligencia Artificial
-Herramienta utilizada: [completar: nombre de la herramienta de IA].
-Para qué la usamos: Usamos la IA como apoyo para comprender mejor el código que ya teníamos armado de la Actividad 2. Le pedimos que nos explique clase por clase y método por método qué hace cada parte (modelo, DAO, excepciones, conexión, etc.), las mejoras respecto a la versión anterior del proyecto, y que profundice en el patrón DAO. También nos ayudó a armar el paso a paso para hacer el commit y subir la nueva versión al repositorio de forma ordenada. [completar si corresponde: si también la usaron para revisar el README o detectar errores, por ejemplo el comando de `exec:java`, aclararlo acá.]
-Qué aprendimos: Aprendimos a leer y explicar con más claridad una estructura DAO con interfaces genéricas, implementaciones JDBC, transacciones y manejo de excepciones propias. También entendimos mejor cómo se separa la lógica de negocio del acceso a datos, y practicamos el flujo de Git (status, add, commit y push) sobre un repositorio ya existente. La IA nos sirvió para consolidar lo que ya habíamos investigado y programado, no para generar el código desde cero. [completar si corresponde: algún concepto puntual que hayan aprendido, por ejemplo la diferencia entre `Statement` y `PreparedStatement`.]
+Para qué la usamos: Usamos la IA como apoyo para comprender mejor el código que ya teníamos armado de la Actividad 2. Le pedimos que nos explique clase por clase y método por método qué hace cada parte (modelo, DAO, excepciones, conexión, etc.), las mejoras respecto a la versión anterior del proyecto, y que profundice en el patrón DAO. También nos ayudó a armar el paso a paso para hacer el commit y subir la nueva versión al repositorio de forma ordenada.
+
+Qué aprendimos: Aprendimos a leer y explicar con más claridad una estructura DAO con interfaces genéricas, implementaciones JDBC, transacciones y manejo de excepciones propias. También entendimos mejor cómo se separa la lógica de negocio del acceso a datos, y practicamos el flujo de Git (status, add, commit y push) sobre un repositorio ya existente. La IA nos sirvió para consolidar lo que ya habíamos investigado y programado, no para generar el código desde cero. 
